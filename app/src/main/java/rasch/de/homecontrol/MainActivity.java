@@ -11,6 +11,8 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String PREF_FILE_NAME = "raschHomeControl";
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,10 +21,20 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        preferences = getSharedPreferences(PREF_FILE_NAME,  MODE_WORLD_WRITEABLE);
+        String urlText = preferences.getString("HOME_URL", null);
+        if (urlText == null) 
+        {
+            dialogSetting();
+            urlText = preferences.getString("HOME_URL", null);
+        }
+        
         WebView webview = (WebView)findViewById(R.id.web_view);
         webview.getSettings().setJavaScriptEnabled(true);
         //webview.setWebViewClient(new webClient());
-        webview.loadUrl("http://192.168.98.114/hc/hc.php");
+        //"http://192.168.98.114/hc/hc.php"
+        
+        webview.loadUrl( urlText);
 
     }
 
@@ -42,9 +54,45 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            dialogSetting();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+    
+    
+    private void dialogSetting() {
+
+        try{
+
+            final Dialog dialog = new Dialog(this);
+            dialog.setContentView(R.layout.settings_dlg);
+            dialog.setTitle("Settings..." );
+
+            Button dialogButton = (Button) dialog.findViewById(R.id.dialogButtonOK);
+            TextView dialogUrl = (TextView) dialog.findViewById(R.id.textUrl);
+
+            dialogButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor = preferences.edit();
+                    editor.putString("HOME_URL", nextUrl);
+                    editor.commit();
+
+                    
+                    
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
+
+        }catch(Exception e) {
+        }
+    }	
+    
+    
+    
 }
